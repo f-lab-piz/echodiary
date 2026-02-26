@@ -21,3 +21,37 @@
 
 ### 다음 액션
 - 첫 플래닝 항목을 선택해 구현하고 단위 테스트를 실행함.
+
+## 2026-02-26 - 데이터 스키마 초안 1차 구현 (#3)
+
+### 계획 입력
+- `planning/spec-diary-writing.md`
+- GitHub Issue `#3`
+
+### 구현 내용
+- SQLAlchemy 모델 추가 (`app/models.py`):
+- `personas`
+- `diaries`
+- `diary_personas`
+- `entries`
+- 핵심 제약 반영:
+- `diary_personas(diary_id, persona_id)` 유니크 제약
+- `entries` 입력 필수 체크 제약(`input_keywords` 또는 `input_text`)
+- 모델 메타데이터 검증 테스트 추가 (`tests/test_models.py`).
+
+### 테스트 커버리지
+- 필수 4개 테이블 존재 여부 검증.
+- 다대다 매핑 유니크 제약 존재 검증.
+- 엔트리 입력 필수 체크 제약 존재 검증.
+
+### 테스트 명령 및 결과
+- 명령: `source .venv/bin/activate && pytest -q`
+- 결과: pass (`3 passed`)
+
+### 결정 사항
+- DB 스키마 초안은 SQLAlchemy Declarative로 우선 정의해 API 구현과 함께 진화시키기로 함.
+- 마이그레이션 툴은 다음 슬라이스에서 도입 여부를 결정함.
+
+### 다음 액션
+- 생성/전환/재시도/저장 API 초안 구현(`#4`).
+- 스키마를 실제 DB 마이그레이션 규칙으로 연결.
