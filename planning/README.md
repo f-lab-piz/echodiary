@@ -7,6 +7,7 @@
 ## 문서 구조
 - `planning/spec-diary-writing.md`: 사용자 일기 작성 기능 스펙.
 - `planning/spec-admin-llm-provider.md`: 관리자 전역 LLM 공급자 선택 기능 스펙.
+- `planning/spec-dev-infra.md`: 개발/배포 인프라 및 CI/CD 스펙.
 - `planning/log.md`: 플래닝 세션 히스토리.
 - `planning/index.md`: 현재 방향, 활성 스펙, 열린 질문 요약.
 
@@ -14,4 +15,5 @@
 1. `planning/index.md`
 2. `planning/spec-diary-writing.md`
 3. `planning/spec-admin-llm-provider.md`
-4. `planning/log.md`
+4. `planning/spec-dev-infra.md`
+5. `planning/log.md`

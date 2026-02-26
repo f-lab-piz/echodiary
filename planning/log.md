@@ -218,5 +218,70 @@
 ### Open Questions
 - 향후 추세/인사이트 기능 스펙을 별도 파일로 언제 분리할지.
 
+## 2026-02-26 - 개발 인프라/CI-CD/AWS 전환 플래닝 추가
+
+### Problem
+- 기능 스펙 대비 개발/배포/운영 인프라 기준이 문서화되지 않아 구현 우선순위와 운영 안정성 기준이 불명확함.
+- 로컬 개발 환경과 AWS 운영 환경 간 차이를 사전에 정의하지 않으면 전환 시 리스크가 커짐.
+
+### Target User
+- EchoDiary를 개발/배포/운영하는 1인 개발자.
+
+### User Value
+- 로컬 개발 속도를 유지하면서도 운영 환경(EC2/RDS)으로 자연스럽게 전환 가능함.
+- CI/CD와 모니터링 기준이 명확해 배포 실패와 장애 대응 시간을 줄임.
+
+### Use Cases
+- Docker Compose로 로컬에서 FastAPI/Postgres/Prometheus/Grafana를 실행함.
+- GitHub Actions로 테스트/빌드/이미지 푸시를 자동화함.
+- ArgoCD로 GitOps 기반 배포 동기화를 수행함.
+- 운영 중 Grafana 대시보드로 지연/오류/DB 상태를 모니터링함.
+
+### Corner Cases
+- 로컬/운영 DB 설정 차이로 마이그레이션 실패.
+- EC2 배포 중 헬스체크 실패.
+- RDS 연결 제한 초과.
+- Prometheus 스크랩 실패로 관측 공백 발생.
+
+### Behavior Spec
+- 기술 스택은 FastAPI, Postgres, Docker, GitHub Actions, ArgoCD, Prometheus, Grafana를 사용함.
+- 개발 중에는 로컬 Compose 중심으로 운영하고, 운영 단계에서 AWS EC2/RDS로 이관함.
+- 시크릿은 Git에 저장하지 않고 환경별 시크릿 저장소를 사용함.
+- 기본 모니터링 지표(API RPS, p95, error rate, DB 연결 수)를 표준화함.
+
+### Cost and Complexity
+- ArgoCD/AWS/모니터링 운영 비용으로 초기 복잡도가 증가함.
+- 저비용 대안(단일 EC2 + 수동 배포)은 빠르지만 추적성과 안정성이 낮음.
+
+### Usability
+- 로컬 실행은 단일 명령(`docker compose up`)으로 시작 가능하게 설계함.
+- CI 실패 원인은 PR에서 바로 확인 가능하도록 함.
+
+### Risks and Mitigations
+- Risk: 인프라 범위 확장으로 일정 지연.
+- Mitigation: 로컬+CI -> AWS 배포 -> 모니터링 고도화 순으로 단계 분리.
+- Risk: 파이프라인 복잡도 상승.
+- Mitigation: main 기준 단일 배포 경로와 템플릿화 적용.
+
+### Decision
+- 인프라 표준 스택과 AWS 전환 전략을 별도 스펙(`planning/spec-dev-infra.md`)으로 고정함.
+
+### MVP Scope
+- 포함: 로컬 Compose, CI 파이프라인, ArgoCD 배포 경로, EC2/RDS 전환 원칙.
+- 비포함: 멀티리전/고급 오토스케일링/분산 트레이싱.
+
+### Success Metrics
+- 개발환경 세팅 시간.
+- CI 성공률/평균 수행 시간.
+- 배포 성공률/복구 시간.
+
+### Open Questions
+- 초기 ArgoCD 대상 런타임(EC2 단일 vs K8s).
+- 이미지 레지스트리 선택(GHCR vs ECR).
+- 모니터링 장기 보관 전략.
+
+### Next Actions
+- docker-compose, CI 워크플로우, ArgoCD 매니페스트 구조 초안 작성.
+
 ### Next Actions
 - 이후 플래닝 변경은 분리본 우선 수정 원칙을 적용한다.
