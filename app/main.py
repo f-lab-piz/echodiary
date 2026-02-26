@@ -5,6 +5,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal, engine
+from app.llm import generate_diary_draft
 from app.models import Base, Diary, DiaryPersona, Entry, EntryStatus, Persona
 from app.schemas import DiaryCreate, EntryGenerateRequest, EntrySaveRequest, PersonaCreate
 
@@ -95,7 +96,11 @@ def generate_entry(payload: EntryGenerateRequest, db: Session = Depends(get_db))
         raise HTTPException(status_code=404, detail="Diary or persona not found")
 
     source = payload.input_text or payload.input_keywords or ""
-    draft = f"[{persona.tone}] {source}"
+
+    try:
+        draft = generate_diary_draft(tone=persona.tone, source=source)
+    except Exception as exc:  # noqa: BLE001
+        raise HTTPException(status_code=502, detail=f"LLM generation failed: {exc}") from exc
 
     entry = Entry(
         diary_id=payload.diary_id,

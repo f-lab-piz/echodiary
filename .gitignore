@@ -3,3 +3,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 echodiary.db
+
+web/node_modules/
+web/dist/
+test.db
+.env

@@ -98,3 +98,29 @@
 - 실제 LLM 생성 로직 연결.
 - 페르소나 전환 시 draft 처리 정책 API 추가.
 - 인증/권한 및 운영자 공급자 설정 API 구현.
+
+## 2026-02-27 - OpenAI 일기 생성 연동 시작
+
+### 계획 입력
+- `planning/spec-diary-writing.md`
+- `planning/spec-admin-llm-provider.md`
+
+### 구현 내용
+- OpenAI 호출 모듈 추가 (`app/llm.py`).
+- `/api/entries/generate`에서 LLM 호출하도록 변경.
+- `.env` 기반 `OPENAI_API_KEY`, `OPENAI_MODEL` 설정 로딩 추가.
+- 키가 없을 때는 기존 로컬 폴백 문구로 동작하도록 처리.
+
+### 테스트 커버리지
+- 기존 API 흐름 테스트 5건 유지.
+
+### 테스트 명령 및 결과
+- 명령: `source .venv/bin/activate && pytest -q`
+- 결과: pass (`5 passed`)
+
+### 결정 사항
+- API 키는 `.env`로만 관리하고 Git 커밋 대상에서 제외한다.
+
+### 다음 액션
+- 생성 실패 사유 구조화 응답 개선.
+- 공급자 다중화(OpenAI/Gemini) 라우팅 계층 추가.
