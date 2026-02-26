@@ -1,6 +1,7 @@
 import os
 
 os.environ["DATABASE_URL"] = "sqlite:///./test.db"
+os.environ["ECHODIARY_DISABLE_LLM"] = "true"
 
 from fastapi.testclient import TestClient
 
