@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EchoDiary MVP</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 760px; margin: 40px auto; padding: 0 16px; }
+    input, textarea, button { width: 100%; padding: 10px; margin-top: 8px; }
+    .row { margin-bottom: 16px; }
+    .log { white-space: pre-wrap; background: #f4f4f4; padding: 12px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>EchoDiary MVP</h1>
+  <div class="row">
+    <label>Account ID</label>
+    <input id="accountId" value="demo-account" />
+  </div>
+  <div class="row">
+    <button id="setup">1) 샘플 Persona/Diary 생성</button>
+  </div>
+  <div class="row">
+    <label>Input Text</label>
+    <textarea id="inputText" rows="4" placeholder="오늘 있었던 일을 짧게 입력"></textarea>
+    <button id="generate">2) Draft 생성</button>
+  </div>
+  <div class="row">
+    <label>Draft</label>
+    <textarea id="draft" rows="6"></textarea>
+    <button id="save">3) 저장</button>
+  </div>
+  <h3>로그</h3>
+  <div id="log" class="log"></div>
+
+  <script>
+    let diaryId = null;
+    let personaId = null;
+    let entryId = null;
+    const log = (msg) => document.getElementById("log").textContent += `${msg}\n`;
+
+    document.getElementById("setup").onclick = async () => {
+      const accountId = document.getElementById("accountId").value;
+      const persona = await fetch('/api/personas', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ account_id: accountId, name:'따뜻한 친구', tone:'다정한', description:'공감형 톤' }) }).then(r=>r.json());
+      personaId = persona.id;
+
+      const diary = await fetch('/api/diaries', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ account_id: accountId, title:'나의 일기장' }) }).then(r=>r.json());
+      diaryId = diary.id;
+
+      await fetch(`/api/diaries/${diaryId}/personas/${personaId}`, { method:'POST' });
+      log(`setup 완료: diary=${diaryId}, persona=${personaId}`);
+    };
+
+    document.getElementById("generate").onclick = async () => {
+      const inputText = document.getElementById("inputText").value;
+      const data = await fetch('/api/entries/generate', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ diary_id: diaryId, persona_id: personaId, input_text: inputText }) }).then(r=>r.json());
+      entryId = data.id;
+      document.getElementById("draft").value = data.draft;
+      log(`draft 생성: entry=${entryId}`);
+    };
+
+    document.getElementById("save").onclick = async () => {
+      const draft = document.getElementById("draft").value;
+      const data = await fetch(`/api/entries/${entryId}/save`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ draft }) }).then(r=>r.json());
+      log(`저장 완료: status=${data.status}`);
+    };
+  </script>
+</body>
+</html>
