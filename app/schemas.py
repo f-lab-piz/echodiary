@@ -1,6 +1,16 @@
 from pydantic import BaseModel, Field
 
 
+class LoginRequest(BaseModel):
+    username: str = Field(min_length=1, max_length=100)
+    password: str = Field(min_length=1, max_length=100)
+
+
+class SignupRequest(BaseModel):
+    username: str = Field(min_length=1, max_length=100)
+    password: str = Field(min_length=1, max_length=100)
+
+
 class PersonaCreate(BaseModel):
     account_id: str
     name: str = Field(min_length=1, max_length=100)
