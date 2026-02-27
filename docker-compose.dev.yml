@@ -1,0 +1,61 @@
+services:
+  frontend:
+    image: node:20-alpine
+    working_dir: /app/web
+    command: sh -c "npm ci && npm run dev"
+    volumes:
+      - ./web:/app/web
+    ports:
+      - "3000:5173"
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://echodiary:echodiary@db:5432/echodiary
+    volumes:
+      - ./app:/app/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: echodiary
+      POSTGRES_PASSWORD: echodiary
+      POSTGRES_DB: echodiary
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U echodiary -d echodiary"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  postgres_data:

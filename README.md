@@ -22,6 +22,19 @@ EchoDiary는 짧은 키워드/메모 입력만으로 일기 초안을 빠르게 
 
 ```bash
 docker compose up -d --build
+
+## 개발 모드 (Hot Reload)
+- 개발 중에는 `docker-compose.dev.yml`을 사용하면 `--build` 없이 코드 변경이 반영됩니다.
+- 백엔드: `uvicorn --reload`로 자동 재시작
+- 프론트엔드: Vite dev server로 즉시 반영(HMR)
+
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
+
+```bash
+docker compose -f docker-compose.dev.yml down
+```
 ```
 
 ## 최근 변경
