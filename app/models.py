@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import enum
-from datetime import datetime
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, ForeignKey, String, Text, UniqueConstraint
@@ -33,7 +33,7 @@ class Persona(Base):
     description: Mapped[str] = mapped_column(Text)
     image_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     image_status: Mapped[ImageStatus] = mapped_column(Enum(ImageStatus), default=ImageStatus.PENDING)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC))
 
     diary_links: Mapped[list[DiaryPersona]] = relationship(back_populates="persona", cascade="all, delete-orphan")
 
@@ -45,7 +45,7 @@ class Diary(Base):
     account_id: Mapped[str] = mapped_column(String(36), index=True)
     title: Mapped[str] = mapped_column(String(120))
     default_persona_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("personas.id"), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC))
 
     persona_links: Mapped[list[DiaryPersona]] = relationship(back_populates="diary", cascade="all, delete-orphan")
     entries: Mapped[list[Entry]] = relationship(back_populates="diary", cascade="all, delete-orphan")
@@ -77,6 +77,6 @@ class Entry(Base):
     input_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     draft: Mapped[str] = mapped_column(Text)
     status: Mapped[EntryStatus] = mapped_column(Enum(EntryStatus), default=EntryStatus.DRAFT)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC))
 
     diary: Mapped[Diary] = relationship(back_populates="entries")
