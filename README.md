@@ -26,6 +26,7 @@ docker compose up -d --build
 
 ## 최근 변경
 - `docker-compose.yml`의 `api` 서비스에 `.env` 주입(`env_file`)을 추가해 컨테이너에서도 OpenAI 키/모델을 사용하도록 수정했습니다.
+- `implementation/playwright-checks/0101-current-status/`에 Playwright 기반 단계별 동작 점검 기록(스크린샷 4장 + 설명 문서)을 추가했습니다.
 
 ## 서비스 엔드포인트
 - Frontend: `http://localhost:3000`
