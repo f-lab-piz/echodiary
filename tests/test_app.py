@@ -90,3 +90,34 @@ def test_generate_and_save_flow() -> None:
     save_resp = client.post(f"/api/entries/{body['id']}/save", json={"draft": "수정된 문장"}, headers=headers)
     assert save_resp.status_code == 200
     assert save_resp.json()["status"] == "saved"
+
+
+def test_diary_and_entries_list_flow() -> None:
+    username = f"list-user-{uuid4()}"
+    signup(username, "pw")
+    headers = login(username, "pw")
+
+    persona = client.post(
+        "/api/personas",
+        json={"account_id": username, "name": "기본", "tone": "담백", "description": "desc"},
+        headers=headers,
+    ).json()
+    diary = client.post("/api/diaries", json={"account_id": username, "title": "오늘의 일기"}, headers=headers).json()
+    client.post(f"/api/diaries/{diary['id']}/personas/{persona['id']}", headers=headers)
+
+    gen_resp = client.post(
+        "/api/entries/generate",
+        json={"diary_id": diary["id"], "persona_id": persona["id"], "input_text": "테스트 입력"},
+        headers=headers,
+    )
+    assert gen_resp.status_code == 200
+
+    diaries_resp = client.get(f"/api/diaries?account_id={username}", headers=headers)
+    assert diaries_resp.status_code == 200
+    assert len(diaries_resp.json()) >= 1
+
+    entries_resp = client.get(f"/api/diaries/{diary['id']}/entries", headers=headers)
+    assert entries_resp.status_code == 200
+    entries = entries_resp.json()
+    assert len(entries) >= 1
+    assert "created_at" in entries[0]

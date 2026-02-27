@@ -40,6 +40,10 @@ docker compose -f docker-compose.dev.yml down
 ## 최근 변경
 - `docker-compose.yml`의 `api` 서비스에 `.env` 주입(`env_file`)을 추가해 컨테이너에서도 OpenAI 키/모델을 사용하도록 수정했습니다.
 - `implementation/playwright-checks/0101-current-status/`에 Playwright 기반 단계별 동작 점검 기록(스크린샷 4장 + 설명 문서)을 추가했습니다.
+- 인증 화면을 `/login`, `/signup`으로 분리하고, 메인(`/`)에서는 `오늘 하루는 어떠신가요` 기반 입력→생성→저장 동선으로 UI를 재구성했습니다.
+- `/diaries` 보관함 페이지를 추가해 저장된 일기 목록(작성일/본문)을 확인할 수 있도록 개선했습니다.
+- `GET /api/diaries?account_id=...` API와 entries 응답의 `created_at` 필드를 추가해 보관함 조회를 지원했습니다.
+- `implementation/playwright-checks/0103-issue14-main-redesign/`에 이슈 #14 검증 기록(스크린샷 6장 + 설명 문서)을 추가했습니다.
 
 ## 서비스 엔드포인트
 - Frontend: `http://localhost:3000`
