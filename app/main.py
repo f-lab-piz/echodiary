@@ -176,6 +176,16 @@ def create_diary(
     return {"id": diary.id, "title": diary.title}
 
 
+@app.get("/api/diaries")
+def list_diaries(
+    account_id: str,
+    db: Session = Depends(get_db),
+    _current_user: User = Depends(get_current_user),
+) -> list[dict[str, str]]:
+    diaries = db.query(Diary).filter(Diary.account_id == account_id).order_by(Diary.created_at.desc()).all()
+    return [{"id": d.id, "title": d.title} for d in diaries]
+
+
 @app.post("/api/diaries/{diary_id}/personas/{persona_id}")
 def link_persona(
     diary_id: str,
@@ -257,7 +267,15 @@ def list_entries(
     _current_user: User = Depends(get_current_user),
 ) -> list[dict[str, str]]:
     entries = db.query(Entry).filter(Entry.diary_id == diary_id).order_by(Entry.created_at.desc()).all()
-    return [{"id": e.id, "draft": e.draft, "status": e.status.value} for e in entries]
+    return [
+        {
+            "id": e.id,
+            "draft": e.draft,
+            "status": e.status.value,
+            "created_at": e.created_at.isoformat(),
+        }
+        for e in entries
+    ]
 
 
 Instrumentator().instrument(app).expose(app)

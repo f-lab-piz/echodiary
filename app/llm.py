@@ -29,19 +29,22 @@ def _build_graph() -> StateGraph:
         if not api_key or os.getenv("ECHODIARY_DISABLE_LLM") == "true":
             return {**state, "draft": _fallback_draft(tone=state["tone"], source=state["source"])}
 
-        llm = ChatOpenAI(model=model, api_key=api_key, temperature=0.7)
-        response = llm.invoke(
-            [
-                SystemMessage(content="너는 사용자의 메모를 자연스럽고 짧은 한국어 일기 문장으로 정리한다."),
-                HumanMessage(
-                    content=(
-                        f"톤: {state['tone']}\n"
-                        f"입력: {state['source']}\n"
-                        "요청: 4~6문장 분량의 자연스러운 한국어 일기 초안을 작성해줘."
-                    )
-                ),
-            ]
-        )
+        llm = ChatOpenAI(model=model, api_key=api_key, temperature=0.7, timeout=8, max_retries=0)
+        try:
+            response = llm.invoke(
+                [
+                    SystemMessage(content="너는 사용자의 메모를 자연스럽고 짧은 한국어 일기 문장으로 정리한다."),
+                    HumanMessage(
+                        content=(
+                            f"톤: {state['tone']}\n"
+                            f"입력: {state['source']}\n"
+                            "요청: 4~6문장 분량의 자연스러운 한국어 일기 초안을 작성해줘."
+                        )
+                    ),
+                ]
+            )
+        except Exception:  # noqa: BLE001
+            return {**state, "draft": _fallback_draft(tone=state["tone"], source=state["source"])}
 
         content = (response.content or "").strip() if isinstance(response.content, str) else ""
         return {**state, "draft": content or _fallback_draft(tone=state["tone"], source=state["source"])}
